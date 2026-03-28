@@ -23,17 +23,33 @@ class LorenzPhysics:
     def path(self):
         for i in range(self.steps):
             
-            dx = self.sigma * (self.y - self.x)
-            dy = self.x *  (self.rho - self.z) - self.y
-            dz = (self.x * self.y) - (self.beta * self.z)
+            k1 = self._lorenz_derivatives(self.x, self.y, self.z)
             
-            self.x = self.x + (dx * self.dt)
-            self.y = self.y + (dy * self.dt)
-            self.z = self.z + (dz * self.dt)
+            k2 = self._lorenz_derivatives(self.x + self.dt/2 * k1[0], 
+                                          self.y + self.dt/2 * k1[1], 
+                                          self.z + self.dt/2 * k1[2])
+            
+            k3  = self._lorenz_derivatives(self.x + self.dt/2 * k2[0],
+                                           self.y + self.dt/2 * k2[1],
+                                           self.z + self.dt/2 * k2[2])
+            
+            k4 = self._lorenz_derivatives(self.x + self.dt * k3[0],
+                                          self.y + self.dt * k3[1],
+                                          self.z + self.dt * k3[2])
+            
+            self.x = self.x + self.dt/6 * (k1[0] + 2*k2[0] + 2*k3[0] + k4[0])
+            self.y = self.y + self.dt/6 * (k1[1] + 2*k2[1] + 2*k3[1] + k4[1])
+            self.z = self.z + self.dt/6 * (k1[2] + 2*k2[2] + 2*k3[2] + k4[2])
             
             self.trajectory.append((self.x, self.y, self.z))
             
         return self.trajectory
+    
+    def _lorenz_derivatives(self, x, y, z):
+        dx = self.sigma * (y - x)
+        dy = x *  (self.rho - z) - y
+        dz = (x * y) - (self.beta * z)
+        return dx, dy, dz
     
     def reset(self):
         

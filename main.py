@@ -9,7 +9,7 @@ live_model = SystemMonitor()
 sigma, rho, beta = live_model.get_average_lorenz_parameters(100)
 
 model = LorenzPhysics(sigma, rho, beta)
-reference_trajectory  =model.path()
+reference_trajectory  = model.path()
 
 
 threshold_value = live_model.threshold_value(reference_trajectory, 100)
