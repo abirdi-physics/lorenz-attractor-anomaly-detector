@@ -12,7 +12,7 @@ class SystemMonitor:
     
     def get_lorenz_parameters(self):
         
-        cpu_load = psutil.cpu_percent(interval=None)
+        cpu_load = psutil.cpu_percent(interval=0.5)
         ram_load = psutil.virtual_memory().percent
         cpu_current_clock, cpu_min_clock, cpu_max_clock = psutil.cpu_freq()
         
@@ -21,6 +21,14 @@ class SystemMonitor:
         beta = (cpu_current_clock/ cpu_max_clock) * (4 - 1.5) + 1.5
         
         return sigma, rho, beta
+    
+    def get_average_lorenz_parameters(self, loops):
+        parameters = []
+        for i in range(loops):
+            parameters.append(self.get_lorenz_parameters())
+            time.sleep(0.5)
+        parameters = np.array(parameters)
+        return np.mean(parameters, axis=0)
     
     def distance(self, point1, point2): #Finds distance between points
         
@@ -54,7 +62,7 @@ class SystemMonitor:
             trajectory = m1.path()
             current_divergence = self.mean_divergence(trajectory, reference_trajectory)
             if current_divergence > threshold_value:
-                print('Possoble Anomaly Detected')
+                print('Possible Anomaly Detected')
             elif current_divergence <= threshold_value:
                 if (i + 1) % 5 == 0:
                     print(f'Current Divergence: {current_divergence} and no anomalies. {threshold_value}')
