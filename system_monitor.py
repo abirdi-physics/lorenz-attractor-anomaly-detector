@@ -29,21 +29,7 @@ class SystemMonitor:
             time.sleep(0.5)
         parameters = np.array(parameters)
         return np.mean(parameters, axis=0)
-    
-    def distance(self, point1, point2): #Finds distance between points
-        
-        return np.sqrt((point1[0] - point2[0])**2
-                       + (point1[1] - point2[1]) ** 2
-                       + (point1[2] - point2[2]) ** 2) 
 
-    def mean_divergence(self, trajectory1, trajectory2):
-        distances = []
-        for i in range(len(trajectory1)):
-            point1 = trajectory1[i]
-            point2 = trajectory2[i]
-            distances.append(self.distance(point1, point2))
-            
-        return np.mean(distances)
     
     def covariant_matrix(self, trajectory):
         trajectory = np.array(trajectory)
