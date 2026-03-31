@@ -55,8 +55,4 @@ class LorenzPhysics:
         
         self.trajectory = []
             
-        self.x = self.x0
-        self.y = self.y0
-        self.z = self.z0
-        
         return self.trajectory

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
 import numpy as np
 from system_monitor import SystemMonitor
 from lorenz_physics import LorenzPhysics
@@ -31,13 +30,23 @@ class AnomalyDetector():
             sample_list.append(frobenius_difference)
         return np.mean(sample_list) + 3 * np.std(sample_list)
     
+            
     def diagnostic(self, threshold, reference_trajectory, samples):
-        matrix2 = self.covariance_matrix(reference_trajectory)
+        matrix2 =self.covariance_matrix(reference_trajectory)
+        sigma, rho, beta = self.monitor.get_average_lorenz_parameters(100)
+        m1 = LorenzPhysics(sigma, rho, beta)
+        
         for i in range(samples):
-            sigma, rho, beta = self.monitor.get_lorenz_parameters()
-            m1 = LorenzPhysics(sigma, rho, beta)
+            m1.reset()
+            sigma, rho, beta = self.monitor.get_average_lorenz_parameters(100)
+            
+            m1.sigma = sigma
+            m1.rho = rho
+            m1.beta = beta
+            
             trajectory = m1.path()
             matrix1 = self.covariance_matrix(trajectory)
+            
             current_frobenius_norm = self.frobenius_norm(matrix1, matrix2)
             
             if current_frobenius_norm > threshold:
@@ -45,4 +54,8 @@ class AnomalyDetector():
             else:
                 if (i + 1) % 5 == 0:
                     print(f'Current Divergence: {current_frobenius_norm} and no anomalies. {threshold}')
-            time.sleep(0.5)
+                    
+
+            
+            
+            

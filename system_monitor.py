@@ -3,7 +3,6 @@
 
 import psutil
 import numpy as np
-import time
 
 
 class SystemMonitor:
@@ -12,7 +11,7 @@ class SystemMonitor:
     
     def get_lorenz_parameters(self):
         
-        cpu_load = psutil.cpu_percent(interval=0.5)
+        cpu_load = psutil.cpu_percent(interval=0.1)
         ram_load = psutil.virtual_memory().percent
         cpu_current_clock, cpu_min_clock, cpu_max_clock = psutil.cpu_freq()
         
@@ -26,6 +25,5 @@ class SystemMonitor:
         parameters = []
         for i in range(loops):
             parameters.append(self.get_lorenz_parameters())
-            time.sleep(0.5)
         parameters = np.array(parameters)
         return np.mean(parameters, axis=0)
