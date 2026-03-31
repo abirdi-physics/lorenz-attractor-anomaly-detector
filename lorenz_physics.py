@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+TRANSIENT_STEPS = 100
 class LorenzPhysics:
     def __init__(self, sigma, rho, beta, steps=1100, x=1, y=1, z=1):
         self.sigma = sigma
@@ -43,7 +43,7 @@ class LorenzPhysics:
             
             self.trajectory.append((self.x, self.y, self.z))
             
-        return self.trajectory
+        return self.trajectory[TRANSIENT_STEPS:]
     
     def _lorenz_derivatives(self, x, y, z):
         dx = self.sigma * (y - x)

@@ -17,7 +17,7 @@ class SystemMonitor:
         cpu_current_clock, cpu_min_clock, cpu_max_clock = psutil.cpu_freq()
         
         sigma = (cpu_load / 100) * (15 - 5) + 5
-        rho = (ram_load/100) * (40 - 20) + 20
+        rho = (ram_load/100) * (40 - 26) + 26
         beta = (cpu_current_clock/ cpu_max_clock) * (4 - 1.5) + 1.5
         
         return sigma, rho, beta
