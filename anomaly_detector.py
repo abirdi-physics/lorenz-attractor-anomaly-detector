@@ -18,12 +18,22 @@ class AnomalyDetector():
         matrix = matrix1 - matrix2
         return np.linalg.norm(matrix, ord='fro')
     
+
     def threshold_value(self,reference_trajectory, samples):
         sample_list = []
         matrix2 = self.covariance_matrix(reference_trajectory)
+        m1 = LorenzPhysics(10, 28, 8/3)#these are dummy variables. 
+        #We just want to instantiate the object, which get reset and properly assigned
+        #in the loop below
+        
         for i in range(samples):
+            m1.reset()
             sigma, rho, beta = self.monitor.get_lorenz_parameters()
-            m1 = LorenzPhysics(sigma, rho, beta)
+            
+            m1.sigma = sigma
+            m1.rho = rho
+            m1.beta = beta
+            
             trajectory1 = m1.path()
             matrix1 = self.covariance_matrix(trajectory1)
             frobenius_difference = self.frobenius_norm(matrix1, matrix2)
@@ -33,12 +43,13 @@ class AnomalyDetector():
             
     def diagnostic(self, threshold, reference_trajectory, samples):
         matrix2 =self.covariance_matrix(reference_trajectory)
-        sigma, rho, beta = self.monitor.get_average_lorenz_parameters(100)
-        m1 = LorenzPhysics(sigma, rho, beta)
+        m1 = LorenzPhysics(10, 28, 8/3) #these are dummy variables. 
+        #We just want to instantiate the object, which get reset and properly assigned
+        #in the loop below
         
         for i in range(samples):
             m1.reset()
-            sigma, rho, beta = self.monitor.get_average_lorenz_parameters(100)
+            sigma, rho, beta = self.monitor.get_lorenz_parameters()
             
             m1.sigma = sigma
             m1.rho = rho
