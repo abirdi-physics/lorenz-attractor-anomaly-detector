@@ -38,6 +38,8 @@ class AnomalyDetector():
             matrix1 = self.covariance_matrix(trajectory1)
             frobenius_difference = self.frobenius_norm(matrix1, matrix2)
             sample_list.append(frobenius_difference)
+            if (i + 1) % 5 == 0:
+                print(f'Calculating Threshold. Step {i+1}/{samples}')
         return np.mean(sample_list) + 3 * np.std(sample_list)
     
             
