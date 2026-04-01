@@ -20,22 +20,22 @@ def load_config():
         config = json.load(f)
     return config['Threshold'], config['Parameters']
 
-detector = AnomalyDetector()
 
 
-if os.path.exists("config.json"):
+def run_simulation():
+    detector = AnomalyDetector()
+    if os.path.exists("config.json"):
+        threshold_value, reference_parameters = load_config()
+        reference_model = LorenzPhysics(reference_parameters[0], 
+                                        reference_parameters[1], 
+                                        reference_parameters[2])
+        reference_trajectory = reference_model.path()
     
-    threshold_value, reference_parameters = load_config()
-    ReferenceModel = LorenzPhysics(reference_parameters[0], reference_parameters[1], 
-                                   reference_parameters[2])
-    
-    reference_trajectory = ReferenceModel.path()
-    
-else:  
-    sigma, rho, beta = detector.monitor.get_average_lorenz_parameters(10) 
-    model = LorenzPhysics(sigma, rho, beta)
-    reference_trajectory = model.path()
-    threshold_value = detector.threshold_value(reference_trajectory, 10)
-    save_config(threshold_value, sigma, rho, beta)
+    else:  
+        sigma, rho, beta = detector.monitor.get_average_lorenz_parameters(100) 
+        model = LorenzPhysics(sigma, rho, beta)
+        reference_trajectory = model.path()
+        threshold_value = detector.threshold_value(reference_trajectory, 100)
+        save_config(threshold_value, sigma, rho, beta)
      
-detector.diagnostic(threshold_value, reference_trajectory, 20)
+    detector.diagnostic(threshold_value, reference_trajectory, 200)
