@@ -54,5 +54,7 @@ class LorenzPhysics:
     def reset(self):
         
         self.trajectory = []
-            
-        return self.trajectory
+        
+        self.x = self.x0
+        self.y = self.y0
+        self.z = self.z0
