@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 import json
 import os
 from lorenz_physics import LorenzPhysics
@@ -21,23 +22,15 @@ def load_config():
 
 detector = AnomalyDetector()
 
+sigma, rho, beta = detector.monitor.get_average_lorenz_parameters(100) 
+model = LorenzPhysics(sigma, rho, beta)
+reference_trajectory = model.path()
+    
 if os.path.exists("config.json"):
-    
-    sigma, rho, beta = detector.monitor.get_average_lorenz_parameters(100)
-    
-    model = LorenzPhysics(sigma, rho, beta)
-    reference_trajectory = model.path()
-    
     threshold_value = load_config()[0]
-    detector.diagnostic(threshold_value, reference_trajectory, 200)
     
-else:
-    sigma, rho, beta = detector.monitor.get_average_lorenz_parameters(100)
-    
-    model = LorenzPhysics(sigma, rho, beta)
-    reference_trajectory = model.path()
-    
+else:  
     threshold_value = detector.threshold_value(reference_trajectory, 100)
     save_config(threshold_value, sigma, rho, beta)
-    detector.diagnostic(threshold_value, reference_trajectory, 200)
      
+detector.diagnostic(threshold_value, reference_trajectory, 200)
