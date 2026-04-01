@@ -3,8 +3,19 @@
 
 import json
 import os
+import logging
 from lorenz_physics import LorenzPhysics
 from anomaly_detector import AnomalyDetector
+
+logging.basicConfig(
+                    level=logging.INFO, 
+                    filename='log.log', 
+                    filemode = 'a',
+                    format ='%(asctime)s | %(levelname)-8s | %(message)s', 
+                    datefmt='%H:%M:%S',
+                    force=True
+                    )
+print('logging configured')
 
 def save_config(threshold, sigma, rho, beta):
     config = {
@@ -30,7 +41,6 @@ def run_simulation():
                                         reference_parameters[1], 
                                         reference_parameters[2])
         reference_trajectory = reference_model.path()
-    
     else:  
         sigma, rho, beta = detector.monitor.get_average_lorenz_parameters(100) 
         model = LorenzPhysics(sigma, rho, beta)
@@ -39,3 +49,5 @@ def run_simulation():
         save_config(threshold_value, sigma, rho, beta)
      
     detector.diagnostic(threshold_value, reference_trajectory, 200)
+
+run_simulation()

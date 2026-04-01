@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import logging
 from system_monitor import SystemMonitor
 from lorenz_physics import LorenzPhysics
+
+logger = logging.getLogger(__name__)
 
 class AnomalyDetector():
     def __init__(self):
@@ -39,7 +42,7 @@ class AnomalyDetector():
             frobenius_difference = self.frobenius_norm(matrix1, matrix2)
             sample_list.append(frobenius_difference)
             if (i + 1) % 5 == 0:
-                print(f'Calculating Threshold. Step {i+1}/{samples}')
+                print(f'Calculating Threshold. Step {i+1}/{samples}', end='\r')
         return np.mean(sample_list) + 3 * np.std(sample_list)
     
             
@@ -63,12 +66,8 @@ class AnomalyDetector():
             current_frobenius_norm = self.frobenius_norm(matrix1, matrix2)
             
             if current_frobenius_norm > threshold:
-                print('Possible Anomaly Detected')
+                logger.warning('Possible Anomaly')
             else:
                 if (i + 1) % 5 == 0:
-                    print(f'Current Divergence: {current_frobenius_norm} and no anomalies. {threshold}')
+                    logger.info(f'Current Divergence: {current_frobenius_norm} and no anomalies. Threshold Value: {threshold}')
                     
-
-            
-            
-            
