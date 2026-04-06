@@ -27,7 +27,7 @@ def parameter_sweep(sigma_range, rho_range, beta_range):
             fault.append('CPU fault')
         if r >= 33:
             fault.append('RAM pressure')
-        if b >= 2.75:
+        if b <= 2.75:
             fault.append('CPU thermal pressure')
         butterfly = LorenzPhysics(s, r, b)
         trajectory = butterfly.path()
@@ -41,9 +41,10 @@ def parameter_sweep(sigma_range, rho_range, beta_range):
             print(f'Performing parameter sweep. Step {counter}/{total}', end='\r')
     return atlas, parameters
 
-sigma_range  = np.linspace(5, 15, 10)
-rho_range = np.linspace(26, 40, 10)
-beta_range = np.linspace(1.5, 4, 10)
+if __name__ = '__main__':
+    sigma_range  = np.linspace(5, 15, 10)
+    rho_range = np.linspace(26, 40, 10)
+    beta_range = np.linspace(1.5, 4, 10)
 
-atlas, parameters = parameter_sweep(sigma_range, rho_range, beta_range)
-save_config(atlas, parameters)
+    atlas, parameters = parameter_sweep(sigma_range, rho_range, beta_range)
+    save_config(atlas, parameters)
