@@ -42,7 +42,7 @@ class AnomalyDetector():
             frobenius_difference = self.frobenius_norm(matrix1, matrix2)
             sample_list.append(frobenius_difference)
             if (i + 1) % 5 == 0:
-                print(f'Calculating Threshold. Step {i+1}/{samples}', end='\r')
+                print(f'Calculating Threshold. mStep {i+1}/{samples}', end='\r')
         return np.mean(sample_list) + 3 * np.std(sample_list)
     
             
@@ -51,7 +51,7 @@ class AnomalyDetector():
         m1 = LorenzPhysics(10, 28, 8/3) #these are dummy variables. 
         #We just want to instantiate the object, which get reset and properly assigned
         #in the loop below
-        
+        anomalous_matrices = []
         for i in range(samples):
             m1.reset()
             sigma, rho, beta = self.monitor.get_lorenz_parameters()
@@ -67,7 +67,8 @@ class AnomalyDetector():
             
             if current_frobenius_norm > threshold:
                 logger.warning('Possible Anomaly')
+                anomalous_matrices.append(matrix1)
             else:
                 if (i + 1) % 5 == 0:
                     logger.info(f'Current Divergence: {current_frobenius_norm} and no anomalies. Threshold Value: {threshold}')
-                    
+        return anomalous_matrices
