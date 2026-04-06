@@ -22,13 +22,21 @@ def parameter_sweep(sigma_range, rho_range, beta_range):
     total = len(sigma_range) * len(rho_range) * len(beta_range)
     counter = 0
     for s, r, b in product(sigma_range, rho_range, beta_range):
+        fault = []
+        if s >= 10:
+            fault.append('CPU fault')
+        if r >= 33:
+            fault.append('RAM pressure')
+        if b >= 2.75:
+            fault.append('CPU thermal pressure')
         butterfly = LorenzPhysics(s, r, b)
         trajectory = butterfly.path()
         covariance_matrix = monitor.covariance_matrix(trajectory)
         covariance_matrix = covariance_matrix.tolist()
         atlas.append(covariance_matrix)
-        parameters.append([s.item(), r.item(), b.item()])
+        parameters.append([s.item(), r.item(), b.item(), fault])
         counter += 1
+
         if counter % 5 == 0:
             print(f'Performing parameter sweep. Step {counter}/{total}', end='\r')
     return atlas, parameters
