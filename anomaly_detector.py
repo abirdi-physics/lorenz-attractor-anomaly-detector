@@ -5,23 +5,20 @@ import numpy as np
 import logging
 from system_monitor import SystemMonitor
 from lorenz_physics import LorenzPhysics
+from spd_manifold import SPDManifold
 
 logger = logging.getLogger(__name__)
 
 class AnomalyDetector():
     def __init__(self):
         self.monitor = SystemMonitor()
-    
+        self.spd_manifold = SPDManifold()
+
     def covariance_matrix(self, trajectory):
         trajectory = np.array(trajectory)
         trajectory = trajectory.T
         return np.cov(trajectory)
     
-    def frobenius_norm(self, matrix1, matrix2):
-        matrix = matrix1 - matrix2
-        return np.linalg.norm(matrix, ord='fro')
-    
-
     def threshold_value(self,reference_trajectory, samples):
         sample_list = []
         matrix2 = self.covariance_matrix(reference_trajectory)
@@ -39,8 +36,8 @@ class AnomalyDetector():
             
             trajectory1 = m1.path()
             matrix1 = self.covariance_matrix(trajectory1)
-            frobenius_difference = self.frobenius_norm(matrix1, matrix2)
-            sample_list.append(frobenius_difference)
+            geodesic_distance = self.spd_manifold.distance(matrix1, matrix2)
+            sample_list.append(geodesic_distance)
             if (i + 1) % 5 == 0:
                 print(f'Calculating Threshold. Step {i+1}/{samples}', end='\r')
         return np.mean(sample_list) + 3 * np.std(sample_list)
@@ -62,13 +59,13 @@ class AnomalyDetector():
             
             trajectory = m1.path()
             matrix1 = self.covariance_matrix(trajectory)
+
+            current_distance = self.spd_manifold.distance(matrix1, matrix2)
             
-            current_frobenius_norm = self.frobenius_norm(matrix1, matrix2)
-            
-            if current_frobenius_norm > threshold:
+            if current_distance > threshold:
                 logger.warning('Possible Anomaly')
                 anomalous_matrices.append(matrix1)
             else:
                 if (i + 1) % 5 == 0:
-                    logger.info(f'Current Divergence: {current_frobenius_norm} and no anomalies. Threshold Value: {threshold}')
+                    logger.info(f'Current Divergence: {current_distance} and no anomalies. Threshold Value: {threshold}')
         return anomalous_matrices
