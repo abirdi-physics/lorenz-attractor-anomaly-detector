@@ -6,6 +6,7 @@ import os
 import logging
 from lorenz_physics import LorenzPhysics
 from anomaly_detector import AnomalyDetector
+from knn_classifier import KNNClassifier
 
 logging.basicConfig(
                     level=logging.INFO, 
@@ -16,6 +17,7 @@ logging.basicConfig(
                     force=True
                     )
 print('logging configured')
+logger = logging.getLogger(__name__)  
 
 def save_config(threshold, sigma, rho, beta):
     config = {
@@ -48,6 +50,11 @@ def run_simulation():
         threshold_value = detector.threshold_value(reference_trajectory, 100)
         save_config(threshold_value, sigma, rho, beta)
      
-    detector.diagnostic(threshold_value, reference_trajectory, 200)
-
+    matrices = detector.diagnostic(threshold_value, reference_trajectory, 200)
+    classification = []
+    classifier = KNNClassifier()
+    for matrix in matrices:
+        result = classifier.classify(matrix, 5)
+        classification.append(result)
+        logger.warning(f'Fault classified as: {result}')
 run_simulation()
