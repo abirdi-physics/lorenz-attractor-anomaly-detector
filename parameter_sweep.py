@@ -41,7 +41,7 @@ def parameter_sweep(sigma_range, rho_range, beta_range):
             print(f'Performing parameter sweep. Step {counter}/{total}', end='\r')
     return atlas, parameters
 
-if __name__ = '__main__':
+if __name__ == '__main__':
     sigma_range  = np.linspace(5, 15, 10)
     rho_range = np.linspace(26, 40, 10)
     beta_range = np.linspace(1.5, 4, 10)
