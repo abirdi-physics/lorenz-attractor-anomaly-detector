@@ -1,0 +1,41 @@
+import numpy as np
+import json
+from itertools import product
+from lorenz_physics import LorenzPhysics
+from anomaly_detector import AnomalyDetector
+
+
+def save_config(atlas, parameters):
+    config = {
+        'Atlas': atlas,
+        'Parameters': parameters
+    }
+
+    with open('covariance_map.json', 'w') as f:
+        json.dump(config, f, indent=4)
+
+def parameter_sweep(sigma_range, rho_range, beta_range):
+
+    atlas = []
+    parameters = []
+    monitor = AnomalyDetector()
+    total = len(sigma_range) * len(rho_range) * len(beta_range)
+    counter = 0
+    for s, r, b in product(sigma_range, rho_range, beta_range):
+        butterfly = LorenzPhysics(s, r, b)
+        trajectory = butterfly.path()
+        covariance_matrix = monitor.covariance_matrix(trajectory)
+        covariance_matrix = covariance_matrix.tolist()
+        atlas.append(covariance_matrix)
+        parameters.append([s.item(), r.item(), b.item()])
+        counter += 1
+        if counter % 5 == 0:
+            print(f'Performing parameter sweep. Step {counter}/{total}', end='\r')
+    return atlas, parameters
+
+sigma_range  = np.linspace(5, 15, 10)
+rho_range = np.linspace(26, 40, 10)
+beta_range = np.linspace(1.5, 4, 10)
+
+atlas, parameters = parameter_sweep(sigma_range, rho_range, beta_range)
+save_config(atlas, parameters)
