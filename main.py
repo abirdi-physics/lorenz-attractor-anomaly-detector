@@ -17,9 +17,10 @@ logging.basicConfig(
                     force=True
                     )
 print('logging configured')
-logger = logging.getLogger(__name__)  
+logger = logging.getLogger(__name__)
 
 def save_config(threshold, sigma, rho, beta):
+    '''Save the detection threshold and reference parameters to config.json.'''
     config = {
         'Threshold': threshold,
         'Parameters': [sigma, rho, beta]
@@ -29,6 +30,7 @@ def save_config(threshold, sigma, rho, beta):
         json.dump(config, f, indent=4)
 
 def load_config():
+    '''Load the detection threshold and reference parameters from config.json.'''
     with open('config.json', 'r') as f:
         config = json.load(f)
     return config['Threshold'], config['Parameters']
@@ -36,6 +38,11 @@ def load_config():
 
 
 def run_simulation():
+    '''Run the full anomaly detection and classification pipeline.
+
+    Loads or computes a reference trajectory and threshold, runs
+    diagnostic sampling, and classifies any detected anomalies
+    using KNN on the SPD manifold.'''
     detector = AnomalyDetector()
     if os.path.exists("config.json"):
         threshold_value, reference_parameters = load_config()
