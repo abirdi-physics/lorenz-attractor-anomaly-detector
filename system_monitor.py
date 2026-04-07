@@ -6,10 +6,19 @@ import numpy as np
 
 
 class SystemMonitor:
+    '''Maps real-time system metrics to Lorenz attractor parameters.
+
+    CPU load maps to sigma, RAM usage maps to rho, and CPU clock
+    speed ratio maps to beta.'''
     def __init__(self):
         pass
     
     def get_lorenz_parameters(self):
+        '''Sample current system metrics and return corresponding Lorenz parameters.
+
+        :return
+                Tuple (sigma, rho, beta) derived from CPU load, RAM usage,
+            and CPU clock speed.'''
         
         cpu_load = psutil.cpu_percent(interval=0.1)
         ram_load = psutil.virtual_memory().percent
@@ -22,6 +31,10 @@ class SystemMonitor:
         return sigma, rho, beta
     
     def get_average_lorenz_parameters(self, loops):
+        '''Average Lorenz parameters over multiple samples.
+        :param loops Number of samples to average over.:
+        :return Array of mean (sigma, rho, beta) values.:
+        '''
         parameters = []
         for i in range(loops):
             parameters.append(self.get_lorenz_parameters())
