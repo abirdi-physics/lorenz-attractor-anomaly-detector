@@ -6,6 +6,8 @@ from anomaly_detector import AnomalyDetector
 
 
 def save_config(atlas, parameters):
+    '''Save atlas of matrices and Lorenz parameters to JSON file called covariance_map.json
+    '''
     config = {
         'Atlas': atlas,
         'Parameters': parameters
@@ -15,7 +17,19 @@ def save_config(atlas, parameters):
         json.dump(config, f, indent=4)
 
 def parameter_sweep(sigma_range, rho_range, beta_range):
+    '''Generate a covariance atlas by sweeping Lorenz parameter space.
 
+    Simulates trajectories for all combinations of sigma, rho, and beta,
+    computes their covariance matrices, and assigns fault labels based
+    on parameter thresholds.
+    
+    :param sigma_range  Array of sigma values to sweep:
+    :param rho_range Array of rho values to sweep:
+    :param beta_range Array of beta values to sweep:
+
+    :return Tuple (atlas, parameters) where atlas is a list of covariance
+        matrices and parameters is a list of [sigma, rho, beta, faults]:
+    '''
     atlas = []
     parameters = []
     monitor = AnomalyDetector()
