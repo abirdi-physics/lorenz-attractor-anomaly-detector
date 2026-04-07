@@ -10,16 +10,33 @@ from spd_manifold import SPDManifold
 logger = logging.getLogger(__name__)
 
 class AnomalyDetector():
+    ''' Detects anomalies by comparing covariance matrices of different Lorenz trajectories.
+
+    Samples live system metrics and simulates Lorenz trajectories. Then flags anomalies
+    when the geodesic distance between two covariance matrices exceeds a statistically derived threshold.
+    '''
     def __init__(self):
         self.monitor = SystemMonitor()
         self.spd_manifold = SPDManifold()
 
     def covariance_matrix(self, trajectory):
+        '''Computes the covariance matrix of a trajectory.
+
+        :param trajectory list of tuples (x, y, z):
+        :return 3 x 3 numpy array (covariance matrix):
+        '''
         trajectory = np.array(trajectory)
         trajectory = trajectory.T
         return np.cov(trajectory)
-    
+
     def threshold_value(self,reference_trajectory, samples):
+        '''Calculates the threshold for anomaly detection.
+
+        Samples live Lorenz trajectories and calculates the mean + 3 standard deviations
+        of the geodesic distance to the reference covariance matrix.
+
+        :param baseline trajectory to compare against samples to calculate threshold:
+        :return threshold value:'''
         sample_list = []
         matrix2 = self.covariance_matrix(reference_trajectory)
         m1 = LorenzPhysics(10, 28, 8/3)#these are dummy variables. 
@@ -44,6 +61,16 @@ class AnomalyDetector():
     
             
     def diagnostic(self, threshold, reference_trajectory, samples):
+        '''Run anomaly detection over a number of samples.
+
+        Compares each sampled covariance matrix against the reference
+        using geodesic distance and collects those exceeding the threshold.
+
+        :param threshold: The anomaly threshold value.
+            reference_trajectory: Baseline trajectory to compare against.
+            samples: Number of diagnostic samples to evaluate:
+
+        :return list of covariance matrices that exceed the threshold:'''
         matrix2 =self.covariance_matrix(reference_trajectory)
         m1 = LorenzPhysics(10, 28, 8/3) #these are dummy variables. 
         #We just want to instantiate the object, which get reset and properly assigned
