@@ -56,7 +56,7 @@ class AnomalyDetector():
             geodesic_distance = self.spd_manifold.distance(matrix1, matrix2)
             sample_list.append(geodesic_distance)
             if (i + 1) % 5 == 0:
-                print(f'Calculating Threshold. Step {i+1}/{samples}', end='\r')
+                print(f'Calculating Threshold. Step {i+1}/{samples}')
         return np.mean(sample_list) + 3 * np.std(sample_list)
     
             
