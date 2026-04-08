@@ -96,39 +96,57 @@ class AnomalyDetector():
 
         return np.mean(velocities) + 3 * np.std(velocities)
             
-    def diagnostic(self, threshold, reference_trajectory, samples):
+    def diagnostic(self, threshold, velocity_threshold, reference_trajectory, samples):
         '''Run anomaly detection over a number of samples.
 
         Compares each sampled covariance matrix against the reference
         using geodesic distance and collects those exceeding the threshold.
+        Velocity debouncing filters out telemetry glitches and flags
+        forbidden transitions before the anomaly check runs.
 
         :param threshold: The anomaly threshold value.
+            velocity_threshold: The velocity threshold for debouncing.
             reference_trajectory: Baseline trajectory to compare against.
             samples: Number of diagnostic samples to evaluate:
 
         :return list of covariance matrices that exceed the threshold:'''
-        matrix2 =self.covariance_matrix(reference_trajectory)
-        m1 = LorenzPhysics(10, 28, 8/3) #these are dummy variables. 
+        matrix2 = self.covariance_matrix(reference_trajectory)
+        m1 = LorenzPhysics(10, 28, 8/3) #these are dummy variables.
         #We just want to instantiate the object, which get reset and properly assigned
         #in the loop below
         anomalous_matrices = []
+        prev_matrix = None
+        strike_count = 0
+
         for i in range(samples):
             m1.reset()
             sigma, rho, beta = self.monitor.get_lorenz_parameters()
-            
-            m1.sigma = sigma
-            m1.rho = rho
-            m1.beta = beta
-            
+            m1.sigma, m1.rho, m1.beta = sigma, rho, beta
             trajectory = m1.path()
             matrix1 = self.covariance_matrix(trajectory)
 
+            if prev_matrix is not None:
+                velocity = self.spd_manifold.distance(prev_matrix, matrix1)
+                action, strike_count = self.debounce(velocity, velocity_threshold, strike_count)
+
+                if action == 'discard':
+                    logger.warning(f'Velocity spike on sample {i+1} - strike {strike_count}/3, discarding sample')
+                    prev_matrix = matrix1
+                    continue
+
+                if action == 'critical':
+                    logger.critical(f'Forbidden transition detected on sample {i+1} - 3 consecutive velocity spikes')
+                    prev_matrix = matrix1
+                    continue
+
             current_distance = self.spd_manifold.distance(matrix1, matrix2)
-            
             if current_distance > threshold:
                 logger.warning('Possible Anomaly')
                 anomalous_matrices.append(matrix1)
             else:
                 if (i + 1) % 5 == 0:
                     logger.info(f'Current Divergence: {current_distance} and no anomalies. Threshold Value: {threshold}')
+
+            prev_matrix = matrix1
+
         return anomalous_matrices
