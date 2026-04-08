@@ -31,8 +31,8 @@ class KNNClassifier():
         k_nearest_indicies = np.argsort(distance)[:k]
         labels = []
         for l in k_nearest_indicies:
-            neighbour_labels = self.covariance_map['Parameters'][l][3]
-            labels.extend(neighbour_labels)
+            neighbour_labels = self.covariance_map['Parameters'][int(l)][3]
+            labels.append(neighbour_labels)
         if len(labels) == 0:
             return 'No Fault Detected'
         counts = Counter(labels)
