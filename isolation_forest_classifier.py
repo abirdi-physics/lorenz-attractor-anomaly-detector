@@ -36,4 +36,4 @@ class IsolationForestClassifier:
         predict = self.forest.predict(tangent_vector.reshape(1, -1))
         if predict[0] == 1:
             return ('normal', None)
-        return ('anomaflous', matrix)
+        return ('anomalous', matrix)
