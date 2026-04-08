@@ -64,7 +64,29 @@ class AnomalyDetector():
             if (i + 1) % 5 == 0:
                 print(f'Calculating Threshold. Step {i+1}/{samples}')
         return np.mean(sample_list) + 3 * np.std(sample_list)
-    
+
+    def velocity_threshold(self, samples):
+        '''Calculates the velocity threshold for regime transitions.
+
+        :param Samples for how long to measure the transition
+
+        :return threshold value:'''
+        matrices = []
+        m1 = LorenzPhysics(10, 28, 8/3)
+        for i in range(samples):
+            m1.reset()
+            sigma, rho, beta = self.monitor.get_lorenz_parameters()
+            m1.sigma, m1.rho, m1.beta = sigma, rho, beta
+            trajectory = m1.path()
+            matrix = self.covariance_matrix(trajectory)
+            matrices.append(matrix)
+
+        velocities = []
+        for j in range(1, len( matrices)):
+            velocity = self.spd_manifold.distance(matrices[j], matrices[j-1])
+            velocities.append(velocity)
+
+        return np.mean(velocities) + 3 * np.std(velocities)
             
     def diagnostic(self, threshold, reference_trajectory, samples):
         '''Run anomaly detection over a number of samples.
