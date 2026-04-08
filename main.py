@@ -59,7 +59,7 @@ def run_simulation():
         velocity_value = detector.velocity_threshold(100)
         save_config(threshold_value, velocity_value, sigma, rho, beta)
      
-    matrices = detector.diagnostic(threshold_value, reference_trajectory, 200)
+    matrices = detector.diagnostic(threshold_value, velocity_threshold, reference_trajectory, 200)
     classification = []
     classifier = KNNClassifier()
     for matrix in matrices:
