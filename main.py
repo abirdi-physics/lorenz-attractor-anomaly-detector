@@ -19,10 +19,11 @@ logging.basicConfig(
 print('logging configured')
 logger = logging.getLogger(__name__)
 
-def save_config(threshold, sigma, rho, beta):
+def save_config(threshold, velocity_threshold, sigma, rho, beta):
     '''Save the detection threshold and reference parameters to config.json.'''
     config = {
         'Threshold': threshold,
+        'Velocity_threshold': velocity_threshold,
         'Parameters': [sigma, rho, beta]
             }
         
@@ -33,7 +34,7 @@ def load_config():
     '''Load the detection threshold and reference parameters from config.json.'''
     with open('config.json', 'r') as f:
         config = json.load(f)
-    return config['Threshold'], config['Parameters']
+    return config['Threshold'], config['Velocity_threshold'], config['Parameters']
 
 
 
@@ -45,7 +46,7 @@ def run_simulation():
     using KNN on the SPD manifold.'''
     detector = AnomalyDetector()
     if os.path.exists("config.json"):
-        threshold_value, reference_parameters = load_config()
+        threshold_value, velocity_threshold, reference_parameters = load_config()
         reference_model = LorenzPhysics(reference_parameters[0], 
                                         reference_parameters[1], 
                                         reference_parameters[2])
@@ -55,7 +56,8 @@ def run_simulation():
         model = LorenzPhysics(sigma, rho, beta)
         reference_trajectory = model.path()
         threshold_value = detector.threshold_value(reference_trajectory, 100)
-        save_config(threshold_value, sigma, rho, beta)
+        velocity_value = detector.velocity_threshold(100)
+        save_config(threshold_value, velocity_value, sigma, rho, beta)
      
     matrices = detector.diagnostic(threshold_value, reference_trajectory, 200)
     classification = []
