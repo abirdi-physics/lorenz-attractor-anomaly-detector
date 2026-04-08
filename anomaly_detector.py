@@ -3,6 +3,7 @@
 
 import numpy as np
 import logging
+from scipy.linalg import eigh
 from system_monitor import SystemMonitor
 from lorenz_physics import LorenzPhysics
 from spd_manifold import SPDManifold
@@ -21,13 +22,18 @@ class AnomalyDetector():
 
     def covariance_matrix(self, trajectory):
         '''Computes the covariance matrix of a trajectory.
+        Imposing Tikhonov regurlisation to keep matrices symmetric.
 
         :param trajectory list of tuples (x, y, z):
         :return 3 x 3 numpy array (covariance matrix):
         '''
         trajectory = np.array(trajectory)
-        trajectory = trajectory.T
-        return np.cov(trajectory)
+        cov = np.cov(trajectory.T)
+        epsilon = 1e-6
+        cov = cov + epsilon * np.eye(3)
+        eigen_values, eigenvectors = eigh(cov)
+        eigen_values = np.clip(eigen_values, epsilon, None)
+        return eigenvectors @ np.diag(eigen_values) @ eigenvectors.T
 
     def threshold_value(self,reference_trajectory, samples):
         '''Calculates the threshold for anomaly detection.
