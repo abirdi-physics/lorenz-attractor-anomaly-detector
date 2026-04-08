@@ -57,7 +57,7 @@ def run_simulation():
         reference_trajectory = model.path()
         threshold_value = detector.threshold_value(reference_trajectory, 100)
         velocity_threshold = detector.velocity_threshold(100)
-        save_config(threshold_value, velocity_value, sigma, rho, beta)
+        save_config(threshold_value, velocity_threshold, sigma, rho, beta)
      
     matrices = detector.diagnostic(threshold_value, velocity_threshold, reference_trajectory, 200)
     classification = []
