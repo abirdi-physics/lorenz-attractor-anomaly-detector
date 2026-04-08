@@ -65,6 +65,14 @@ class AnomalyDetector():
                 print(f'Calculating Threshold. Step {i+1}/{samples}')
         return np.mean(sample_list) + 3 * np.std(sample_list)
 
+    def debounce(self, velocity, velocity_threshold, strike_count=0):
+        if velocity > velocity_threshold:
+            strike_count += 1
+            if strike_count >= 3:
+                return ('critical', strike_count)
+            return ('discard', strike_count)
+        return ('pass', 0)
+
     def velocity_threshold(self, samples):
         '''Calculates the velocity threshold for regime transitions.
 
